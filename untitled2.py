@@ -15,6 +15,10 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.',1)[1] in app.config['ALLOWED_EXTENSIONS']
 
+def check_upload_folder():
+    if not os.path.isdir(full_path):
+        os.mkdir(full_path)
+
 
 
 @app.route('/')
@@ -36,4 +40,5 @@ def uploaded_file(filename):
 
 
 if __name__ == '__main__':
+    check_upload_folder()
     app.run()

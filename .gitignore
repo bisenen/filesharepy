@@ -14,6 +14,7 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+
 # =========================
 # Operating System Files
 # =========================
@@ -26,7 +27,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -40,4 +42,7 @@ Icon
 .AppleDesktop
 Network Trash Folder
 Temporary Items
+idea
+.idea
 .apdisk
+uploads
