@@ -1,17 +1,18 @@
 import sqlite3
 import os
+import random
+from hashids import Hashids
 
-db_name = "lol.db"
+db_name = "sqlite.db"
 
 class MainDb():
-
     def exsql(self, query):
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
             cursor.execute(query)
             return cursor.fetchall()
 
-    def isSQLite3(self, filename=self.db_name):
+    def isSQLite3(self, filename):
         from os.path import isfile, getsize
 
         if not isfile(filename):
@@ -28,16 +29,15 @@ class MainDb():
             else:
                 return False
 
-    def init_exist_db():
-        if self.isSQLite3():
+    def init_exist_db(self):
+        if self.isSQLite3(self.db_name):
             pass
         else:
-            query = """create table transcoders (
+            query = """create table files (
                      id integer primary key autoincrement,
                      name text,
-                     ip text,
-                     fullhd bool,
-                     free bool
+                     path text,
+                     webpath text
                      );
                      """
             self.exsql(query)
@@ -45,20 +45,30 @@ class MainDb():
 
     def __init__(self, db_name):
         self.db_name = db_name
-        self.read_db_query = 'select * from transcoders;'
+        self.read_db_query = 'select * from files;'
         self.init_exist_db()
 
 
-
-
     def read_db(self, add_query=None):
-        print self.exsql(self.read_db_query)
-        if not add_query == None:
-                print "Yay", add_query
+        return self.exsql(self.read_db_query)
 
 
+    def test_insert(self, name, path, webpath):
+        query_tmp = "INSERT INTO files (name, path, webpath) VALUES ('{0}', '{1}', '{2}')".format(name, path, webpath)
+        print query_tmp
+        self.exsql(query_tmp)
+
+rand = random.randint(1, 1000)
+print rand
+hashids = Hashids(salt="123131321")
+print hashids.encrypt(random.randint(1, 1000))
 
 db = MainDb(db_name)
 
-db.read_db()
-db.read_db("lol")
+for i in range(1,10):
+    db.test_insert(hashids.encrypt(random.randint(1000, 9000)), hashids.encrypt(random.randint(1000, 9000)), hashids.encrypt(random.randint(1000, 9000)))
+
+for i in db.read_db():
+    print i
+
+
