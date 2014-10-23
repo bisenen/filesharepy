@@ -6,7 +6,7 @@ from werkzeug import secure_filename
 app = Flask(__name__)
 
 app.config['UPLOADER_FOLDER'] = 'uploads/'
-app.config['ALLOWED_EXTENSIONS'] = set(['txt', 'png', 'jpg', 'mp4'])
+app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'mp4'])
 app.config['DEBUG'] = True
 
 full_path = os.path.join(app.root_path, app.config['UPLOADER_FOLDER'])
