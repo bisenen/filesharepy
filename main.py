@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+
 import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from werkzeug import secure_filename
-import sqlite3
+from hashids import Hashids
+import dbexe
+import random
 
 
 app = Flask(__name__)
@@ -14,8 +20,10 @@ app.config['DB_NAME'] = "fileshare.db"
 full_path_uploads = os.path.join(app.root_path, app.config['UPLOADER_FOLDER'])
 full_path_db = os.path.join(app.root_path, app.config['DB_NAME'])
 
+hashids = Hashids(salt="kndwujvncpasiuvbi")
+print hashids.encrypt(random.randint(100000000, 9000000000))
 
-
+int_db = dbexe.MainDb(app.config['DB_NAME'])
 
 
 def allowed_file(filename):
@@ -35,8 +43,9 @@ def index():
 def upload():
         file = request.files['file']
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            filename = "{0}.{1}".format(hashids.encrypt(random.randint(1000000000000000000, 9000000000000000000)), file.filename.rsplit('.',1)[1])
             file.save(os.path.join(app.root_path, app.config['UPLOADER_FOLDER'], filename))
+            int_db.insert_files(filename, os.path.join(app.root_path, app.config['UPLOADER_FOLDER'], filename), "/uploads/{0}".format(filename))
             return redirect(url_for('uploaded_file', filename=filename))
 
 @app.route('/uploads/<filename>')

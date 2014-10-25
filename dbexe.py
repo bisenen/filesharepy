@@ -1,9 +1,7 @@
 import sqlite3
 import os
 import random
-from hashids import Hashids
 
-db_name = "sqlite.db"
 
 class MainDb():
     def exsql(self, query):
@@ -53,22 +51,10 @@ class MainDb():
         return self.exsql(self.read_db_query)
 
 
-    def test_insert(self, name, path, webpath):
+    def insert_files(self, name, path, webpath):
         query_tmp = "INSERT INTO files (name, path, webpath) VALUES ('{0}', '{1}', '{2}')".format(name, path, webpath)
         print query_tmp
         self.exsql(query_tmp)
 
-rand = random.randint(1, 1000)
-print rand
-hashids = Hashids(salt="123131321")
-print hashids.encrypt(random.randint(1, 1000))
-
-db = MainDb(db_name)
-
-for i in range(1,10):
-    db.test_insert(hashids.encrypt(random.randint(1000, 9000)), hashids.encrypt(random.randint(1000, 9000)), hashids.encrypt(random.randint(1000, 9000)))
-
-for i in db.read_db():
-    print i
 
 
