@@ -24,14 +24,28 @@ hashids = Hashids(salt="kndwujvncpasiuvbi")
 print hashids.encrypt(random.randint(100000000, 9000000000))
 
 int_db = dbexe.MainDb(app.config['DB_NAME'])
+print int_db.read_db('name')
+
 
 def make_pre_image(path):
-    basewidth = 300
+    max_size = 200
+    print path
     name = "pre_{0}".format(os.path.basename(path))
     img = Image.open(path)
-    wpercent = (basewidth/float(img.size[0]))
-    hsize = int((float(img.size[1])*float(wpercent)))
-    img = img.resize((basewidth,hsize), Image.ANTIALIAS)
+    if img.size[0] > img.size[1]:
+        wpercent = (max_size/float(img.size[0]))
+        hsize = int((float(img.size[1])*float(wpercent)))
+        print hsize
+        print 'A'
+        img = img.resize((max_size, hsize), Image.ANTIALIAS)
+    else:
+        hpercent = (max_size/float(img.size[1]))
+        wsize = int((float(img.size[0])*float(hpercent)))
+        print wsize
+        print "B"
+        img = img.resize((wsize, max_size), Image.ANTIALIAS)
+    print img
+    print type(img)
     img.save(os.path.join(full_path_uploads, name))
 
 def allowed_file(filename):
@@ -45,6 +59,10 @@ def check_upload_folder():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/list')
+def gallery():
+    return render_template('gallery.html', list=int_db.read_db('name'))
 
 
 @app.route('/upload', methods=['POST'])

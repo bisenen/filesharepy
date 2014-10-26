@@ -47,8 +47,12 @@ class MainDb():
         self.init_exist_db()
 
 
-    def read_db(self, add_query=None):
-        return self.exsql(self.read_db_query)
+    def read_db(self, row=None):
+        if row is None:
+            return self.exsql(self.read_db_query)
+        else:
+            query = "select {0} from files".format(row)
+            return self.exsql(query)
 
 
     def insert_files(self, name, path, webpath):

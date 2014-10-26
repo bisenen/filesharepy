@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+          rel="stylesheet">
+      <style>
+div.img {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #cafdff;
+    height: auto;
+    width: auto;
+    float: left;
+    text-align: center;
+}
+
+div.img img {
+    display: inline;
+    margin: 5px;
+    border: 1px solid #ffffff;
+}
+     </style>
+  </head>
+  <body>
+{% for item in list %}
+    <div class="img">
+      <a target="_blank" href="uploads/{{ item[0] }}">
+        <img src="uploads/pre_{{ item[0] }}" >
+      </a>
+    </div>
+{% endfor %}
+  </body>
+</html>
