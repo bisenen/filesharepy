@@ -6,7 +6,9 @@ import random
 
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from hashids import Hashids
-import Image
+from PIL import Image
+import subprocess as sp
+
 
 import dbexe
 
@@ -14,9 +16,11 @@ import dbexe
 app = Flask(__name__)
 
 app.config['UPLOADER_FOLDER'] = 'uploads/'
-app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'mp4'])
+app.config['ALLOWED_EXTENSIONS'] = set(['png', 'gif', 'jpg', 'webm', 'mp4'])
 app.config['DEBUG'] = True
 app.config['DB_NAME'] = "fileshare.db"
+
+
 
 full_path_uploads = os.path.join(app.root_path, app.config['UPLOADER_FOLDER'])
 full_path_db = os.path.join(app.root_path, app.config['DB_NAME'])
@@ -28,19 +32,36 @@ int_db = dbexe.MainDb(app.config['DB_NAME'])
 print int_db.read_db('name')
 
 
+def make_pre_image_video(path):
+    name = "{0}.png".format(os.path.basename(path))
+    full_path_vid_pre = os.path.join(full_path_uploads, name)
+    command = [ "ffmpeg", '-i', path, '-vcodec', 'png', '-ss', '10', '-vframes', '1', '-an', '-f', 'rawvideo', full_path_vid_pre ]
+    pipe = sp.Popen(command, stdout=sp.PIPE)
+    pipe.stdout.readline()
+    pipe.terminate()
+    make_pre_image(full_path_vid_pre)
+
+
+
 def make_pre_image(path):
-    max_size = 200
-    name = "pre_{0}".format(os.path.basename(path))
-    img = Image.open(path)
-    if img.size[0] > img.size[1]:
-        wpercent = (max_size / float(img.size[0]))
-        hsize = int((float(img.size[1]) * float(wpercent)))
-        img = img.resize((max_size, hsize), Image.ANTIALIAS)
+    if os.path.basename(path).rsplit('.', 1)[1] in set(['webm', 'mp4']):
+        make_pre_image_video(path)
     else:
-        hpercent = (max_size / float(img.size[1]))
-        wsize = int((float(img.size[0]) * float(hpercent)))
-        img = img.resize((wsize, max_size), Image.ANTIALIAS)
-    img.save(os.path.join(full_path_uploads, name))
+        max_size = 200
+        if os.path.basename(path).rsplit('.', 1)[1] not in set(['png', "PNG"]):
+            name = "pre_{0}.png".format(os.path.basename(path))
+        else:
+            name = "pre_{0}".format(os.path.basename(path))
+        img = Image.open(path)
+        if img.size[0] > img.size[1]:
+            wpercent = (max_size / float(img.size[0]))
+            hsize = int((float(img.size[1]) * float(wpercent)))
+            img = img.resize((max_size, hsize), Image.LANCZOS)
+        else:
+            hpercent = (max_size / float(img.size[1]))
+            wsize = int((float(img.size[0]) * float(hpercent)))
+            img = img.resize((wsize, max_size), Image.LANCZOS)
+        img.save(os.path.join(full_path_uploads, name), "PNG")
 
 
 def allowed_file(filename):
