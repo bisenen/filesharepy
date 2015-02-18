@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from hashids import Hashids
 from PIL import Image
 import subprocess as sp
+import urllib
 
 
 import dbexe
@@ -48,7 +49,7 @@ def make_pre_image(path):
         make_pre_image_video(path)
     else:
         max_size = 200
-        if os.path.basename(path).rsplit('.', 1)[1] not in set(['png', "PNG"]):
+        if len(os.path.basename(path).rsplit('.')) == 2:
             name = "pre_{0}.png".format(os.path.basename(path))
         else:
             name = "pre_{0}".format(os.path.basename(path))
@@ -78,6 +79,10 @@ def check_upload_folder():
 def index():
     return render_template('index.html')
 
+@app.route('/err500')
+def err500():
+    return render_template('500.html')
+
 
 @app.route('/list')
 def gallery():
@@ -95,6 +100,27 @@ def upload():
         int_db.insert_files(filename, full_path_name, "/uploads/{0}".format(filename))
         make_pre_image(full_path_name)
         return redirect(url_for('uploaded_file', filename=filename))
+
+
+@app.route('/upload_url', methods=['GET'])
+def upload_url():
+    input_url = request.args['url']
+    urlfilename = input_url.split("/")[-1]
+    if allowed_file(urlfilename):
+        file = urllib.urlopen(input_url).read()
+        filename = "{0}.{1}".format(hashids.encrypt(random.randint(1000000000000000000, 9000000000000000000)),
+                                    urlfilename.rsplit('.', 1)[1])
+        full_path_name = os.path.join(app.root_path, app.config['UPLOADER_FOLDER'], filename)
+        f = open(full_path_name, "wb")
+        f.write(file)
+        f.close()
+        int_db.insert_files(filename, full_path_name, "/uploads/{0}".format(filename))
+        make_pre_image(full_path_name)
+        return redirect(url_for('uploaded_file', filename=filename))
+    else:
+        return redirect(url_for('err500'))
+
+
 
 
 @app.route('/uploads/<filename>')
